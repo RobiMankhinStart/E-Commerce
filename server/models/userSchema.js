@@ -2,19 +2,24 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const userSchema = new mongoose.Schema(
   {
-    fullname: {
-      String,
+    avatar: {
+      type: String,
+    },
+    fullName: {
+      type: String,
+      trim: true,
     },
     email: {
-      required: true,
       type: String,
+      required: true,
       unique: true,
     },
     password: {
+      type: String,
       required: true,
     },
     phone: {
-      type: String,
+      type: Number,
     },
     address: {
       type: String,
@@ -22,31 +27,42 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       default: "user",
-      enum: ["admin", "user"],
+      enum: ["admin", "user", "editor"],
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     otp: {
       type: Number,
       default: null,
     },
-    otpExpires: { type: Date },
-    isVerified: { type: Boolean, default: false },
+    otpExpires: {
+      type: Date,
+    },
+    resetPassToken: {
+      type: String,
+    },
+    resetExpire: {
+      type: Date,
+    },
   },
   { timestamps: true },
 );
 
-// middleWare
 userSchema.pre("save", async function () {
-  try {
-    if (!this.isModified("password")) return;
-    this.password = await bcrypt.hash(this.password, 10);
-  } catch (error) {
-    console.log(error);
+  const user = this;
+  if (!user.isModified("password")) {
+    return;
   }
+
+  try {
+    user.password = await bcrypt.hash(user.password, 10);
+  } catch (err) {}
 });
 
-// custom password compare method
-userSchema.methods.comparePasswords = async function (paramPass) {
-  return await bcrypt.compare(paramPass, this.password);
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
 module.exports = mongoose.model("user", userSchema);

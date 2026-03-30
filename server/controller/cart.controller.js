@@ -22,7 +22,11 @@ const addToCart = async (req, res) => {
         (pItem) => pItem.sku === sku,
       );
       if (alreadyExists)
-        return responseHandler.error(res, 400, "Product already exist in cart");
+        return responseHandler.error(
+          res,
+          400,
+          "This product is already in the cart",
+        );
 
       existingCart.items.push({
         product: productId,
@@ -45,7 +49,7 @@ const addToCart = async (req, res) => {
         ],
       });
 
-      responseHandler.success(res, 201, "Product added to cart.");
+      responseHandler.success(res, 201, "Added to cart.");
     }
   } catch (error) {
     console.log(error);
@@ -59,7 +63,7 @@ const getUserCart = async (req, res) => {
       .select("-user");
     responseHandler.success(res, 200, cart);
   } catch (error) {
-    responseHandler.error(res, 500, "Server Error");
+    responseHandler.error(res, 500, "Inter Server Error");
   }
 };
 
@@ -71,7 +75,7 @@ const updateCart = async (req, res) => {
       return responseHandler.error(res, 400, "Invalid Request");
 
     if (quantity < 1)
-      return responseHandler.error(res, 400, "Keep minimum 1 item");
+      return responseHandler.error(res, 400, "Minimum 1 item is required");
 
     if (!itemId || !quantity || !productId)
       return responseHandler.error(res, 400, "Invalid Request");
@@ -92,10 +96,10 @@ const updateCart = async (req, res) => {
       )
       .select("items totalItems");
 
-    responseHandler.success(res, 200, cart, "Cart Updated");
+    responseHandler.success(res, 200, cart, "Cart is Updated");
   } catch (error) {
     console.log(error);
-    responseHandler.error(res, 500, "Server Error");
+    responseHandler.error(res, 500, "Internal Server Error");
   }
 };
 
@@ -123,7 +127,7 @@ const removeFromCart = async (req, res) => {
     responseHandler.success(res, 200, cart, "Cart Updated");
   } catch (error) {
     console.log(error);
-    responseHandler.error(res, 500, "Server Error");
+    responseHandler.error(res, 500, "Internal server Error");
   }
 };
 

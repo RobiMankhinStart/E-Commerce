@@ -144,15 +144,15 @@ const signInUser = async (req, res) => {
     const refToken = generateRefreshToken(existingUser);
 
     res.cookie("X-AS-Token", accToken, {
-      httpOnly: false, // Not accessible by client-side JS
-      secure: false, // Only sent over HTTPS
-      maxAge: 3600000, // Expires in 1 hour (in milliseconds)
-      // sameSite: 'Strict' // Only send for same-site requests
+      httpOnly: false,
+      secure: false,
+      maxAge: 3600000,
+      // sameSite: 'Strict'
     });
     res.cookie("X-RF-Token", refToken, {
-      httpOnly: false, // Not accessible by client-side JS
-      secure: false, // Only sent over HTTPS
-      maxAge: 1296000000, // Expires in 1 hour (in milliseconds)
+      httpOnly: false,
+      secure: false,
+      maxAge: 1296000000,
       // sameSite: 'Strict' // Only send for same-site requests
     });
     return responseHandler.success(res, 200, {}, "Login Successfylly");
@@ -287,10 +287,9 @@ const refreshAccessToken = async (req, res) => {
     const accessToken = generateAccessToken(decoded);
     res
       .cookie("X-AS-Token", accessToken, {
-        httpOnly: false, // Not accessible by client-side JS
-        secure: false, // Only sent over HTTPS
-        maxAge: 3600000, // Expires in 1 hour (in milliseconds)
-        // sameSite: 'Strict' // Only send for same-site requests
+        httpOnly: false,
+        secure: false,
+        maxAge: 3600000,
       })
       .send({ success: true });
   } catch (error) {

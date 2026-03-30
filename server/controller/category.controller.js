@@ -16,7 +16,7 @@ const createNewCategory = async (req, res) => {
       return responseHandler.error(
         res,
         400,
-        "Category with this Slug already exist",
+        "This category slug already exists",
       );
 
     const imgRes = await uploadToCloudinary(req.file, "categories");

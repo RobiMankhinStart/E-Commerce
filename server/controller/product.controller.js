@@ -57,7 +57,7 @@ const createProduct = async (req, res) => {
         return responseHandler.error(
           res,
           400,
-          "Stock is required and must be more then 0",
+          "Stock can not be empty and Minimum required Stock is 1 ",
         );
     }
 
@@ -239,7 +239,7 @@ const updateProduct = async (req, res) => {
 
       const skus = variantsData.map((v) => v.sku);
       if (new Set(skus).size !== skus.length)
-        return responseHandler.error(res, 400, "SUK must unique");
+        return responseHandler.error(res, 400, "SKU must be unique");
 
       productData.variants = variantsData;
     }
@@ -257,9 +257,13 @@ const updateProduct = async (req, res) => {
     if (Array.isArray(images) && images.length > 0) totalImges += images.length;
 
     if (totalImges > 4)
-      return responseHandler.error(res, 400, "You can upload maximum 4 images");
+      return responseHandler.error(
+        res,
+        400,
+        "Maximum 4 images can be uploaded",
+      );
     if (totalImges < 1)
-      return responseHandler.error(res, 400, "Minimum 1 images should be stay");
+      return responseHandler.error(res, 400, "Minimum 1 image is required");
 
     if (images) {
       const resPromise = images.map(async (item) =>

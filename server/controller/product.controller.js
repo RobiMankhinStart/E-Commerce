@@ -39,7 +39,6 @@ const createProduct = async (req, res) => {
       return responseHandler.error(res, 400, "This Category is not valid");
     if (!price) return responseHandler.error(res, 400, "Price is required");
 
-    // apadotor jonno
     const variantsData = JSON.parse(variants);
     if (!Array.isArray(variantsData) || variantsData.length === 0)
       return responseHandler.error(res, 400, "Minimum required variant is 1.");
@@ -147,7 +146,17 @@ const getProductList = async (req, res) => {
         },
       });
     }
-
+    // ....search ........
+    if (search) {
+      pipeline.push({
+        $match: {
+          title: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+      });
+    }
     const productList = await productSchema.aggregate(pipeline);
     console.log(productList);
 

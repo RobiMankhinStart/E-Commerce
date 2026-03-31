@@ -42,7 +42,7 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       required: true,
-      unique: true,
+      // unique: true,
     },
     items: [orderItems],
     shippingAddress: {

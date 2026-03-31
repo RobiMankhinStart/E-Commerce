@@ -1,8 +1,9 @@
 const cartSchema = require("../models/cartSchema");
-const Orderschema = require("../models/Orderschema");
+const OrderSchema = require("../models/OrderSchema");
 const { responseHandler } = require("../services/responseHandler");
+const stripe = require("stripe")(process.env.STRIPESE);
 
-// paymentType = SSLCommerz / cash
+// paymentType =   cash or SSLCommerz
 const checkOut = async (req, res) => {
   const { paymentType, cartId, shippingAddress, insideDhaka } = req.body;
   const orderNumber = `${Date.now()}`;
@@ -19,7 +20,7 @@ const checkOut = async (req, res) => {
       return (total += current.subtotal);
     }, charge);
 
-    const orderData = new Orderschema({
+    const orderData = new OrderSchema({
       user: req.user._id,
       items: cartData.items,
       shippingAddress,
@@ -34,8 +35,34 @@ const checkOut = async (req, res) => {
     orderData.save();
 
     if (paymentType === "cash") {
-      return responseHandler.success(res, 200, "Order placed successfully.");
+      return responseHandler.success(res, 200, "Order successfully completed.");
     }
+
+    // online money
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "BDT",
+            product_data: {
+              name: "T-Shirt",
+              description: `Blue T-Shirt with chest print`,
+            },
+            unit_amount: 500 * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      customer_email: `${req.user.email}`,
+      success_url: `https://example.com/success`,
+      cancel_url: `https://example.com/error`,
+    });
+
+    console.log(session);
+
+    res.redirect(303, session.url);
   } catch (error) {
     console.log(error);
   }

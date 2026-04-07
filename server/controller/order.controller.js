@@ -2,7 +2,7 @@ const cartSchema = require("../models/cartSchema");
 const OrderSchema = require("../models/OrderSchema");
 const { responseHandler } = require("../services/responseHandler");
 const stripe = require("stripe")(process.env.STRIPESE);
-
+const endpointSecret = process.env.STRIPE_ENDPOINT;
 // paymentType =   cash or SSLCommerz
 const checkOut = async (req, res) => {
   const { paymentType, cartId, shippingAddress, insideDhaka } = req.body;
@@ -56,6 +56,9 @@ const checkOut = async (req, res) => {
         },
       ],
       customer_email: `${req.user.email}`,
+      metadata: {
+        orderId: `${orderData._id}`,
+      },
       success_url: `https://example.com/success`,
       cancel_url: `https://example.com/error`,
     });
@@ -65,7 +68,50 @@ const checkOut = async (req, res) => {
     res.redirect(303, session.url);
   } catch (error) {
     console.log(error);
+    return responseHandler.error(res, 500, error.message);
   }
 };
 
-module.exports = { checkOut };
+const webhook = async (req, res) => {
+  const signature = req.headers["stripe-signature"];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
+  } catch (err) {
+    res.status(400).send(`Webhook Error: ${err.message}`);
+    return;
+  }
+
+  console.log(event);
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+
+    //Payment Saving in the database
+    const orderData = await OrderSchema.findByIdAndUpdate(
+      session.metadata.orderId,
+      {
+        "payment.status": "paid",
+        "payment.paymentId": session.id,
+        "payment.currency": session.currency,
+        "payment.fullname": session.customer_details.name,
+        "payment.email": session.customer_details.email,
+        "payment.paidAmount": session.amount,
+        "payment.paidAt": Date.now(),
+      },
+    );
+  }
+
+  if (event.type === "charge.updated") {
+    const session = event.data.object;
+
+    await orderSchema.findOneAndUpdate(session.metadata.orderId, {
+      "payment.receipt": session.receipt_url,
+    });
+  }
+  // Return a 200 response to acknowledge receipt of the event
+  return res.status(200).json({ received: true });
+};
+
+module.exports = { checkOut, webhook };

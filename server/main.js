@@ -6,14 +6,16 @@ const dbConfig = require("./dbConfig");
 const route = require("./router");
 const cloudinaryConfig = require("./services/cloudinaryConfig");
 const dns = require("dns");
+const { webhook } = require("./controller/order.controller");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 app.use(cookieParser());
 require("dotenv").config();
 app.use(cors());
 dbConfig();
 cloudinaryConfig();
+app.post("/webhook", express.raw({ type: "application/json" }), webhook);
+app.use(express.json());
 app.use(route);
 
 app.listen(8000, () => {

@@ -261,20 +261,21 @@ const updateProduct = async (req, res) => {
     }
     let imagesUrl = [];
 
-    let totalImges = productData.images.length;
-    if (destroyImages.length > 0) totalImges -= destroyImages.length;
-    if (Array.isArray(images) && images.length > 0) totalImges += images.length;
+    let totalImages = productData.images.length;
+    if (destroyImages.length > 0) totalImages -= destroyImages.length;
+    if (Array.isArray(images) && images?.length > 0)
+      totalImages += images.length;
 
-    if (totalImges > 4)
+    if (totalImages > 4)
       return responseHandler.error(
         res,
         400,
         "Maximum 4 images can be uploaded",
       );
-    if (totalImges < 1)
+    if (totalImages < 1)
       return responseHandler.error(res, 400, "Minimum 1 image is required");
 
-    if (images) {
+    if (images && images.length > 0) {
       const resPromise = images.map(async (item) =>
         uploadToCloudinary(item, "products"),
       );
@@ -306,6 +307,7 @@ const updateProduct = async (req, res) => {
     );
   } catch (error) {
     console.log(error);
+    return responseHandler.error(res, 400, "internal server error");
   }
 };
 

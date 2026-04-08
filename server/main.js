@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -10,7 +11,6 @@ const { webhook } = require("./controller/order.controller");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-require("dotenv").config();
 app.use(cors());
 dbConfig();
 cloudinaryConfig();

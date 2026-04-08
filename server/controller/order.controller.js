@@ -1,7 +1,7 @@
 const cartSchema = require("../models/cartSchema");
 const OrderSchema = require("../models/OrderSchema");
 const { responseHandler } = require("../services/responseHandler");
-const stripe = require("stripe")(process.env.STRIPESE);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT;
 // paymentType =   cash or SSLCommerz
 const checkOut = async (req, res) => {
@@ -32,7 +32,7 @@ const checkOut = async (req, res) => {
       },
       orderNumber,
     });
-    orderData.save();
+    await orderData.save();
 
     if (paymentType === "cash") {
       return responseHandler.success(res, 200, "Order successfully completed.");
@@ -79,7 +79,7 @@ const webhook = async (req, res) => {
   try {
     event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
   } catch (err) {
-    res.status(400).send(`Webhook Error: ${err.message}`);
+    res.status(400).send(`Webhook Error: ${err}`);
     return;
   }
 
@@ -97,7 +97,7 @@ const webhook = async (req, res) => {
         "payment.currency": session.currency,
         "payment.fullname": session.customer_details.name,
         "payment.email": session.customer_details.email,
-        "payment.paidAmount": session.amount,
+        "payment.paidAmount": session.amount_total,
         "payment.paidAt": Date.now(),
       },
     );
@@ -106,11 +106,11 @@ const webhook = async (req, res) => {
   if (event.type === "charge.updated") {
     const session = event.data.object;
 
-    await orderSchema.findOneAndUpdate(session.metadata.orderId, {
+    await OrderSchema.findByIdAndUpdate(session.metadata.orderId, {
       "payment.receipt": session.receipt_url,
     });
   }
-  // Return a 200 response to acknowledge receipt of the event
+
   return res.status(200).json({ received: true });
 };
 

@@ -5,8 +5,8 @@ const {
   deleteFromCloudinary,
 } = require("../services/cloudinaryService");
 const { responseHandler } = require("../services/responseHandler");
-const { SIZE_ENUM } = require("../services/utils");
 
+const SIZE_ENUM = ["s", "m", "l", "xl", "2xl", "3xl"];
 const createProduct = async (req, res) => {
   try {
     const {

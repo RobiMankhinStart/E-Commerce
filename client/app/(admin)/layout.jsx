@@ -13,7 +13,10 @@ import {
   LogOut,
   MoreVertical,
 } from "lucide-react";
+
 import Image from "next/image";
+import { ApiProvider } from "@reduxjs/toolkit/query/react";
+import { adminApiService } from "./services/api";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -52,31 +55,31 @@ export default function AdminLayout({ children }) {
 
           <nav className="space-y-1">
             <NavItem
-              href="/inventory"
+              href="/admin/inventory"
               icon={<Package size={20} />}
               label="Inventory"
               active={pathname === "/inventory"}
             />
             <NavItem
-              href="/dashboard"
+              href="/admin/dashboard"
               icon={<LayoutDashboard size={20} />}
               label="Dashboard"
               active={pathname === "/dashboard"}
             />
             <NavItem
-              href="/orders"
+              href="/admin/orders"
               icon={<ShoppingBag size={20} />}
               label="Orders"
               active={pathname === "/orders"}
             />
             <NavItem
-              href="/customers"
+              href="/admin/users"
               icon={<Users size={20} />}
               label="Customers"
-              active={pathname === "/customers"}
+              active={pathname === "/users"}
             />
             <NavItem
-              href="/settings"
+              href="/admin/settings"
               icon={<Settings size={20} />}
               label="Settings"
               active={pathname === "/settings"}
@@ -86,7 +89,7 @@ export default function AdminLayout({ children }) {
 
         <div className="mt-auto p-6 space-y-1">
           <NavItem
-            href="/support"
+            href="/admin/support"
             icon={<HelpCircle size={20} />}
             label="Support"
           />
@@ -95,7 +98,9 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 ml-64 p-10">{children}</main>
+      <main className="flex-1 ml-64 p-10">
+        <ApiProvider api={adminApiService}>{children}</ApiProvider>
+      </main>
     </div>
   );
 }

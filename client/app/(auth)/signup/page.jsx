@@ -1,8 +1,53 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { redirect, useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
+  const [errors, setErrors] = useState({
+    nameError: "",
+    emailError: "",
+    passwordError: "",
+  });
+
+  const [userData, setUserData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:8000/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.message === "Full Name is required")
+          setErrors((prev) => ({ ...prev, nameError: data.message }));
+        if (
+          data.message === "Email is required" ||
+          data.message === "Enter a valid email address" ||
+          data.message === "Email already exist"
+        )
+          setErrors((prev) => ({ ...prev, emailError: data.message }));
+        if (data.message === "Password is required")
+          setErrors((prev) => ({ ...prev, passwordError: data.message }));
+
+        return;
+      }
+      alert("success");
+      setTimeout(() => {
+        router.push("/signin");
+      }, 2000);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <header>
@@ -14,50 +59,95 @@ export default function SignupPage() {
         </p>
       </header>
 
-      <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      >
         <div className="col-span-full space-y-1">
           <label className="text-xs font-semibold uppercase tracking-wider text-[#464555]">
             Full Name
           </label>
           <input
+            onChange={(e) => {
+              setUserData((prev) => ({ ...prev, fullName: e.target.value }));
+              setErrors((prev) => ({ ...prev, nameError: "" }));
+            }}
+            className={`w-full bg-[#f2f4f6] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#3525cd]/20 focus:bg-white outline-none transition-all ${
+              errors.nameError ? "ring-2 ring-rose-500/20 bg-rose-50/50" : ""
+            }`}
+            placeholder="Julian Thorne"
+            type="text"
+            value={userData.fullName}
+          />
+          {errors.nameError && (
+            <p className="text-[11px] font-bold text-rose-500 ml-2 animate-in fade-in slide-in-from-top-1">
+              {errors.nameError}
+            </p>
+          )}
+          {/* <input
+            onChange={(e) => {
+              setUserData((prev) => ({ ...prev, fullName: e.target.value }));
+              setErrors((prev) => ({ ...prev, nameError: "" }));
+            }}
             className="w-full bg-[#f2f4f6] border-none rounded-lg px-4 py-3 focus:ring-1 focus:ring-[#3525cd]/40 focus:bg-white outline-none"
             placeholder="Julian Thorne"
             type="text"
-          />
+            error={errors?.nameError}
+          /> */}
         </div>
         <div className="col-span-full space-y-1">
           <label className="text-xs font-semibold uppercase tracking-wider text-[#464555]">
             Email
           </label>
           <input
-            className="w-full bg-[#f2f4f6] border-none rounded-lg px-4 py-3 focus:ring-1 focus:ring-[#3525cd]/40 focus:bg-white outline-none"
+            onChange={(e) => {
+              setUserData((prev) => ({ ...prev, email: e.target.value }));
+              setErrors((prev) => ({ ...prev, emailError: "" }));
+            }}
+            className={`w-full bg-[#f2f4f6] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#3525cd]/20 focus:bg-white outline-none transition-all ${
+              errors.emailError ? "ring-2 ring-rose-500/20 bg-rose-50/50" : ""
+            }`}
             placeholder="julian@thorn.com"
             type="email"
+            value={userData.email}
           />
+          {errors.emailError && (
+            <p className="text-[11px] font-bold text-rose-500 ml-2 animate-in fade-in slide-in-from-top-1">
+              {errors.emailError}
+            </p>
+          )}
         </div>
-        {/* <div className="space-y-1">
-          <label className="text-xs font-semibold uppercase tracking-wider text-[#464555]">
-            Phone
-          </label>
-          <input
-            className="w-full bg-[#f2f4f6] border-none rounded-lg px-4 py-3 focus:ring-1 focus:ring-[#3525cd]/40 focus:bg-white outline-none"
-            placeholder="+1 234..."
-            type="tel"
-          />
-        </div> */}
+
         <div className="col-span-full space-y-1">
           <label className="text-xs font-semibold uppercase tracking-wider text-[#464555]">
             Password
           </label>
           <input
-            className="w-full bg-[#f2f4f6] border-none rounded-lg px-4 py-3 focus:ring-1 focus:ring-[#3525cd]/40 focus:bg-white outline-none"
+            onChange={(e) => {
+              setUserData((prev) => ({ ...prev, password: e.target.value }));
+              setErrors((prev) => ({ ...prev, passwordError: "" }));
+            }}
+            className={`w-full bg-[#f2f4f6] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#3525cd]/20 focus:bg-white outline-none transition-all ${
+              errors.passwordError
+                ? "ring-2 ring-rose-500/20 bg-rose-50/50"
+                : ""
+            }`}
             placeholder="Min. 8 characters"
             type="password"
+            value={userData.password}
           />
+          {errors.passwordError && (
+            <p className="text-[11px] font-bold text-rose-500 ml-2 animate-in fade-in slide-in-from-top-1">
+              {errors.passwordError}
+            </p>
+          )}
         </div>
 
         {/* --- CHANGE: Full-width button now expands downward without affecting header --- */}
-        <button className="col-span-full py-4 bg-gradient-to-br from-[#3525cd] to-[#4f46e5] text-white font-bold rounded-lg shadow-lg hover:opacity-90 transition-opacity mt-2">
+        <button
+          type="submit"
+          className="col-span-full py-4 bg-gradient-to-br from-[#3525cd] to-[#4f46e5] text-white font-bold rounded-lg shadow-lg hover:opacity-90 transition-opacity mt-2"
+        >
           Create Account
         </button>
       </form>
@@ -66,10 +156,10 @@ export default function SignupPage() {
       <p className="text-center text-sm text-[#464555]">
         Already have an account?{" "}
         <Link
-          href="/login"
+          href="/signin"
           className="text-[#3525cd] font-bold hover:underline"
         >
-          Log In
+          Sign in
         </Link>
       </p>
     </div>

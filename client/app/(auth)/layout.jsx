@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 export default function AuthLayout({ children }) {
   const pathname = usePathname();
-  const isLogin = pathname === "/login";
+  const isLogin = pathname === "/signin";
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 md:p-8 bg-[#f7f9fb] font-['Inter']">
@@ -62,10 +62,10 @@ export default function AuthLayout({ children }) {
           {/* Tab Navigation with Dynamic Sliding Bar */}
           <div className="relative flex gap-8 mb-12 border-b border-[#eceef0] shrink-0">
             <Link
-              href="/login"
+              href="/signin"
               className={`pb-4 font-['Manrope'] text-xl font-bold transition-colors ${isLogin ? "text-[#191c1e]" : "text-[#464555] hover:text-[#3525cd]"}`}
             >
-              Login
+              Sign in
             </Link>
             <Link
               href="/signup"

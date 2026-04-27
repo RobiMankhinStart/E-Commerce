@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,6 +30,8 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
+    const toastId = toast.loading("Logging in to your account...");
+
     try {
       const res = await fetch("http://localhost:8000/auth/signin", {
         method: "POST",
@@ -40,11 +43,10 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setIsLoading(false);
-        // Standard alert for the main error message
-        alert(data.message || "Login failed");
-
         const msg = data.message || "";
+        setIsLoading(false);
+        toast.error(msg || "Signin failed", { id: toastId });
+
         if (msg.toLowerCase().includes("email")) {
           setErrors((prev) => ({ ...prev, email: msg }));
         }
@@ -55,15 +57,20 @@ export default function LoginPage() {
       }
 
       // Success logic
-      alert("Login Successful! Redirecting...");
+      toast.success("Sign in successfull! Redirecting to Home...", {
+        id: toastId,
+      });
+      setIsLoading(false);
 
       setTimeout(() => {
-        router.push("/admin/products");
+        router.push("/admin");
       }, 1500);
     } catch (error) {
       setIsLoading(false);
-      alert("Network error: Could not connect to the server.");
-      console.error(error);
+      console.log(error);
+      toast.error("Could not connect to server. Please try again.", {
+        id: toastId,
+      });
     }
   };
 
@@ -136,10 +143,15 @@ export default function LoginPage() {
         </div>
 
         <button
-          disabled={isLoading}
-          className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-xl hover:bg-slate-800 active:scale-[0.98] transition-all mt-4 disabled:opacity-50"
+          type="submit"
+          disabled={isLoading} // Prevents clicking while true
+          className={`col-span-full py-4 bg-gradient-to-br from-[#3525cd] to-[#4f46e5] text-white font-bold rounded-lg shadow-lg transition-all mt-2 ${
+            isLoading
+              ? "opacity-50 cursor-not-allowed grayscale"
+              : "hover:opacity-90 active:scale-[0.98]"
+          }`}
         >
-          {isLoading ? "Signing in..." : "Sign In"}
+          {isLoading ? "Logging in" : "Log in"}
         </button>
       </form>
 

@@ -10,7 +10,10 @@ export const adminApiService = createApi({
       query: () => "/product/allproducts",
       // providesTags: ["Products"], // Telling RTK Query this is a list of products
     }),
+    getCategories: build.query({
+      query: () => "/category/all",
+    }),
   }),
 });
 
-export const { useGetProductsQuery } = adminApiService;
+export const { useGetProductsQuery, useGetCategoriesQuery } = adminApiService;

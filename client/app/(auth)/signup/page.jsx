@@ -2,9 +2,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({
     nameError: "",
     emailError: "",
@@ -19,6 +21,10 @@ export default function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setIsLoading(true);
+    const toastId = toast.loading("Creating your account...");
+
     try {
       const res = await fetch("http://localhost:8000/auth/signup", {
         method: "POST",
@@ -27,6 +33,10 @@ export default function SignupPage() {
       });
       const data = await res.json();
       if (!res.ok) {
+        setIsLoading(false);
+        // Using the same toastId to show the error
+        toast.error(data.message || "Signup failed", { id: toastId });
+
         if (data.message === "Full Name is required")
           setErrors((prev) => ({ ...prev, nameError: data.message }));
         if (
@@ -40,12 +50,22 @@ export default function SignupPage() {
 
         return;
       }
-      alert("success");
+
+      toast.success("Account created! Redirecting to verification...", {
+        id: toastId,
+      });
+      setIsLoading(false);
+
       setTimeout(() => {
-        router.push("/signin");
+        router.push("/verifyotp");
       }, 2000);
     } catch (error) {
+      setIsLoading(false);
+
       console.log(error);
+      toast.error("Could not connect to server. Please try again.", {
+        id: toastId,
+      });
     }
   };
   return (
@@ -146,9 +166,14 @@ export default function SignupPage() {
         {/* --- CHANGE: Full-width button now expands downward without affecting header --- */}
         <button
           type="submit"
-          className="col-span-full py-4 bg-gradient-to-br from-[#3525cd] to-[#4f46e5] text-white font-bold rounded-lg shadow-lg hover:opacity-90 transition-opacity mt-2"
+          disabled={isLoading} // Prevents clicking while true
+          className={`col-span-full py-4 bg-gradient-to-br from-[#3525cd] to-[#4f46e5] text-white font-bold rounded-lg shadow-lg transition-all mt-2 ${
+            isLoading
+              ? "opacity-50 cursor-not-allowed grayscale"
+              : "hover:opacity-90 active:scale-[0.98]"
+          }`}
         >
-          Create Account
+          {isLoading ? "Creating Account..." : "Create Account"}
         </button>
       </form>
 

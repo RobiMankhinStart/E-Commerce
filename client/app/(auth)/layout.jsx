@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 export default function AuthLayout({ children }) {
   const pathname = usePathname();
-  const isLogin = pathname === "/signin";
+  const signin = pathname === "/signin";
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 md:p-8 bg-[#f7f9fb] font-['Inter']">
@@ -58,18 +58,18 @@ export default function AuthLayout({ children }) {
         </div>
 
         {/* Right Side: Navigation + Content */}
-        <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-start bg-white">
+        <div className="p-8  md:p-12 lg:p-16 flex flex-col justify-start bg-white">
           {/* Tab Navigation with Dynamic Sliding Bar */}
           <div className="relative flex gap-8 mb-12 border-b border-[#eceef0] shrink-0">
             <Link
               href="/signin"
-              className={`pb-4 font-['Manrope'] text-xl font-bold transition-colors ${isLogin ? "text-[#191c1e]" : "text-[#464555] hover:text-[#3525cd]"}`}
+              className={`pb-4 font-['Manrope'] text-xl font-bold transition-colors ${signin ? "text-[#191c1e]" : "text-[#464555] hover:text-[#3525cd]"}`}
             >
               Sign in
             </Link>
             <Link
               href="/signup"
-              className={`pb-4 font-['Manrope'] text-xl font-bold transition-colors ${!isLogin ? "text-[#191c1e]" : "text-[#464555] hover:text-[#3525cd]"}`}
+              className={`pb-4 font-['Manrope'] text-xl font-bold transition-colors ${!signin ? "text-[#191c1e]" : "text-[#464555] hover:text-[#3525cd]"}`}
             >
               Sign Up
             </Link>
@@ -78,8 +78,8 @@ export default function AuthLayout({ children }) {
             <div
               className="absolute bottom-0 h-1 bg-[#3525cd] transition-all duration-300 ease-in-out"
               style={{
-                width: isLogin ? "55px" : "85px",
-                left: isLogin ? "0px" : "87px",
+                width: signin ? "69px" : "80px",
+                left: signin ? "0px" : "97px",
               }}
             />
           </div>

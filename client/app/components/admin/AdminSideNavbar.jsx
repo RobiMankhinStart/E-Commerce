@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Store,
+  PackageCheck,
   Package,
   ShoppingBag,
   Users,
@@ -59,6 +60,12 @@ const AdminSideNavbar = () => {
             icon={<Store size={20} />}
             label="Products"
             active={pathname === "/products"}
+          />
+          <NavItem
+            href="/admin/categories"
+            icon={<PackageCheck size={20} />}
+            label="Categories"
+            active={pathname === "/categories"}
           />
           <NavItem
             href="/admin/inventory"

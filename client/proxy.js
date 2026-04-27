@@ -12,7 +12,7 @@ export async function proxy(request) {
     const token = request.cookies.get("X-AS-Token")?.value;
 
     if (!token) {
-      return NextResponse.redirect(new URL("/signin", request.url));
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
     console.log(SECRET);
 
@@ -22,14 +22,14 @@ export async function proxy(request) {
 
       // Optional: role-based check
       if (!["admin", "editor"].includes(payload.role)) {
-        return NextResponse.redirect(new URL("/signin", request.url));
+        return NextResponse.redirect(new URL("/admin", request.url));
       }
 
       // Token is valid → continue
       return NextResponse.next();
     } catch (err) {
       console.log(err);
-      return NextResponse.redirect(new URL("/signin", request.url));
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
   }
 
